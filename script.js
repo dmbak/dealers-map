@@ -1,6 +1,7 @@
 'use strict';
 
 const sideBar = document.querySelector('.sidebar');
+const myLocationToggle = document.querySelector('.toggle-checkbox');
 
 const dealerList = [
   {
@@ -37,7 +38,7 @@ const dealerList = [
   },
 ];
 
-// map rendeting
+// map rendering
 let map = L.map('map').setView(
   [dealerList[0].coords[0], dealerList[0].coords[1]],
   5
@@ -49,26 +50,54 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // user location
-map.locate({ setView: true, maxZoom: 2 });
 
 function onLocationFound(e) {
-  let radius = e.accuracy;
+  const userMarker = L.icon({
+    iconUrl: '/img/markers/green-marker.png',
 
-  L.marker(e.latlng)
+    iconSize: [36, 36],
+    shadowSize: [50, 64],
+    iconAnchor: [22, 94],
+    shadowAnchor: [4, 62],
+    popupAnchor: [-3, -76],
+  });
+
+  L.marker(e.latlng, { icon: userMarker })
     .addTo(map)
-    .bindPopup('You are within ' + radius + ' meters from this point')
+    .bindPopup('You are here')
     .openPopup();
 
-  L.circle(e.latlng, radius).addTo(map);
+  // L.circle(e.latlng, radius).addTo(map);
 }
 
 map.on('locationfound', onLocationFound);
+
+myLocationToggle.addEventListener('change', function (e) {
+  if (myLocationToggle.checked) {
+    map.locate({ setView: true, maxZoom: 2 });
+  } else {
+    L.marker(e.latlng, { icon: userMarker });
+  }
+});
 
 const pinsRendering = function (arr) {
   arr.forEach(element => {
     const [lat, lng] = element.coords;
 
-    L.marker([lat, lng]).addTo(map).bindPopup(`${element.company}`).openPopup();
+    const dealersMarker = L.icon({
+      iconUrl: '/img/markers/blue-marker.png',
+
+      iconSize: [36, 36],
+      shadowSize: [50, 64],
+      iconAnchor: [22, 94],
+      shadowAnchor: [4, 62],
+      popupAnchor: [-3, -76],
+    });
+
+    L.marker([lat, lng], { icon: dealersMarker })
+      .addTo(map)
+      .bindPopup(`${element.company}`)
+      .openPopup();
   });
 };
 
