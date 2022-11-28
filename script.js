@@ -38,7 +38,7 @@ const dealerList = [
   },
 ];
 
-// map rendering
+// initial map rendering
 let map = L.map('map').setView(
   [dealerList[0].coords[0], dealerList[0].coords[1]],
   5
@@ -50,11 +50,10 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // user location
-
+let userMarker;
 function onLocationFound(e) {
-  const userMarker = L.icon({
+  const userMarkerIcon = L.icon({
     iconUrl: '/img/markers/green-marker.png',
-
     iconSize: [36, 36],
     shadowSize: [50, 64],
     iconAnchor: [22, 94],
@@ -62,7 +61,7 @@ function onLocationFound(e) {
     popupAnchor: [-3, -76],
   });
 
-  L.marker(e.latlng, { icon: userMarker })
+  userMarker = L.marker(e.latlng, { icon: userMarkerIcon })
     .addTo(map)
     .bindPopup('You are here')
     .openPopup();
@@ -70,13 +69,13 @@ function onLocationFound(e) {
   // L.circle(e.latlng, radius).addTo(map);
 }
 
-map.on('locationfound', onLocationFound);
-
 myLocationToggle.addEventListener('change', function (e) {
   if (myLocationToggle.checked) {
     map.locate({ setView: true, maxZoom: 2 });
+    map.on('locationfound', onLocationFound);
   } else {
-    L.marker(e.latlng, { icon: userMarker });
+    map.removeLayer(userMarker);
+    pinsRendering(dealerList);
   }
 });
 
