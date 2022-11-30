@@ -44,6 +44,17 @@ let map = L.map('map').setView(
   5
 );
 
+// dealers icon setup
+const dealersMarker = L.icon({
+  iconUrl: '/img/markers/blue-marker.png',
+
+  iconSize: [36, 36],
+  shadowSize: [50, 64],
+  iconAnchor: [22, 94],
+  shadowAnchor: [4, 62],
+  popupAnchor: [-3, -76],
+});
+
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -65,13 +76,11 @@ function onLocationFound(e) {
     .addTo(map)
     .bindPopup('You are here')
     .openPopup();
-
-  // L.circle(e.latlng, radius).addTo(map);
 }
 
 myLocationToggle.addEventListener('change', function (e) {
   if (myLocationToggle.checked) {
-    map.locate({ setView: true, maxZoom: 2 });
+    map.locate({ setView: true, maxZoom: 5 });
     map.on('locationfound', onLocationFound);
   } else {
     map.removeLayer(userMarker);
@@ -79,24 +88,19 @@ myLocationToggle.addEventListener('change', function (e) {
   }
 });
 
+// Rendering a company
+const renderingCompany = function (company) {
+  const [lat, lng] = company.coords;
+  L.marker([lat, lng], { icon: dealersMarker })
+    .addTo(map)
+    .bindPopup(`${company.company}`)
+    .openPopup();
+};
+
+// Rendering all pins
 const pinsRendering = function (arr) {
   arr.forEach(element => {
-    const [lat, lng] = element.coords;
-
-    const dealersMarker = L.icon({
-      iconUrl: '/img/markers/blue-marker.png',
-
-      iconSize: [36, 36],
-      shadowSize: [50, 64],
-      iconAnchor: [22, 94],
-      shadowAnchor: [4, 62],
-      popupAnchor: [-3, -76],
-    });
-
-    L.marker([lat, lng], { icon: dealersMarker })
-      .addTo(map)
-      .bindPopup(`${element.company}`)
-      .openPopup();
+    renderingCompany(element);
   });
 };
 
@@ -131,6 +135,7 @@ const moveToPin = function (e) {
     el => el.id === parseInt(companyEl.dataset.set)
   );
 
+  renderingCompany(company);
   const [lat, lng] = company.coords;
   map.setView([lat, lng], 5, {
     animate: true,
